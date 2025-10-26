@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIBE - The Gen Z Social Platform 🔥</title>
+    <meta name="description" content="Join the most fire social platform for Gen Z. Share your vibe, connect with your tribe, and discover what's trending.">
+    
+    <!-- 🎨 Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
+    
+    <!-- 📱 PWA Meta Tags -->
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- 🎯 Open Graph -->
+    <meta property="og:title" content="VIBE - The Gen Z Social Platform">
+    <meta property="og:description" content="Share your vibe, connect with your tribe">
+    <meta property="og:type" content="website">
+    
+    <link rel="stylesheet" href="../styles/landing.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 🌟 Animated Background -->
+    <div class="bg-animation">
+        <div class="bg-gradient"></div>
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+        </div>
+    </div>
+
+    <!-- 📱 Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🔥</span>
+                <span class="logo-text">VIBE</span>
+            </div>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#about" class="nav-link">About</a>
+                <button class="btn-login" onclick="showAuthModal('login')">Login</button>
+                <button class="btn-signup" onclick="showAuthModal('register')">Sign Up</button>
+            </div>
+            <div class="mobile-menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 🚀 Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-icon">✨</span>
+                    <span>The Future of Social is Here</span>
+                </div>
+                <h1 class="hero-title">
+                    Share Your 
+                    <span class="gradient-text typing-animation" id="typing-text">Vibe</span>
+                    <br>Connect Your Tribe
+                </h1>
+                <p class="hero-description">
+                    The most fire social platform designed by Gen Z, for Gen Z. 
+                    Real-time vibes, Stories that slap, and features that actually make sense.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="showAuthModal('register')">
+                        <span>Start Vibing</span>
+                        <span class="btn-icon">🚀</span>
+                    </button>
+                    <button class="btn-secondary" onclick="scrollToFeatures()">
+                        <span>See Features</span>
+                        <span class="btn-icon">👀</span>
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number" data-count="50000">0</div>
+                        <div class="stat-label">Active Vibers</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" data-count="1000000">0</div>
+                        <div class="stat-label">Vibes Shared</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" data-count="99">0</div>
+                        <div class="stat-label">% Fire Content</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <div class="mock-app">
+                            <div class="mock-header">
+                                <div class="mock-avatar"></div>
+                                <div class="mock-name">@yourvibes</div>
+                                <div class="mock-verified">✓</div>
+                            </div>
+                            <div class="mock-content">
+                                <div class="mock-text">Just dropped the most fire content 🔥</div>
+                                <div class="mock-image"></div>
+                                <div class="mock-reactions">
+                                    <span class="reaction">🔥 2.1k</span>
+                                    <span class="reaction">💬 156</span>
+                                    <span class="reaction">🚀 89</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ✨ Features Section -->
+    <section id="features" class="features">
+        <div class="features-container">
+            <div class="section-header">
+                <h2 class="section-title">Features That Hit Different</h2>
+                <p class="section-subtitle">Everything you need to express yourself and connect authentically</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔥</div>
+                    <h3 class="feature-title">Real-Time Vibes</h3>
+                    <p class="feature-description">Share your mood, thoughts, and moments instantly with our lightning-fast platform</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3 class="feature-title">Custom Aesthetics</h3>
+                    <p class="feature-description">Dark mode, neon themes, and customizable profiles that match your energy</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3 class="feature-title">Smart Chat</h3>
+                    <p class="feature-description">Group chats, voice notes, and reactions that actually express how you feel</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">Stories & Reels</h3>
+                    <p class="feature-description">24-hour stories and short-form content that disappears (unless it's too fire)</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">AI Discovery</h3>
+                    <p class="feature-description">Smart algorithm that actually understands your vibe and shows you content you'll love</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title">Privacy First</h3>
+                    <p class="feature-description">Your data stays yours. No creepy tracking, just pure vibes and authentic connections</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 🎯 CTA Section -->
+    <section class="cta">
+        <div class="cta-container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to Join the Movement?</h2>
+                <p class="cta-description">
+                    Be part of the social platform that gets it. No algorithms pushing content you don't want, 
+                    no fake vibes, just authentic connections with your people.
+                </p>
+                <button class="btn-cta" onclick="showAuthModal('register')">
+                    <span>Start Your Journey</span>
+                    <span class="btn-icon">✨</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 🔐 Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-backdrop" onclick="closeAuthModal()"></div>
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeAuthModal()">×</button>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <div class="auth-header">
+                    <h2>Welcome Back! 👋</h2>
+                    <p>Sign in to continue your vibe</p>
+                </div>
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <input type="text" id="loginIdentifier" placeholder="Username or Email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="loginPassword" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="btn-auth" id="loginBtn">
+                        <span>Sign In</span>
+                        <div class="btn-loader"></div>
+                    </button>
+                </form>
+                <p class="auth-switch">
+                    New here? <a href="#" onclick="switchAuthMode('register')">Create an account</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form" style="display: none;">
+                <div class="auth-header">
+                    <h2>Join the Vibe! 🚀</h2>
+                    <p>Create your account and start connecting</p>
+                </div>
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <input type="text" id="registerUsername" placeholder="Username" required>
+                        <div class="username-check"></div>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="registerEmail" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="registerDisplayName" placeholder="Display Name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="registerPassword" placeholder="Password (min 6 characters)" required>
+                    </div>
+                    <button type="submit" class="btn-auth" id="registerBtn">
+                        <span>Create Account</span>
+                        <div class="btn-loader"></div>
+                    </button>
+                </form>
+                <p class="auth-switch">
+                    Already have an account? <a href="#" onclick="switchAuthMode('login')">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔄 Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Loading your vibe...</p>
+    </div>
+
+    <!-- 🍞 Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="../scripts/landing.js"></script>
+</body>
+</html>
