@@ -173,7 +173,10 @@ userSchema.methods.updateStats = async function() {
 userSchema.methods.toJSON = function() {
   const user = this.toObject();
   delete user.password;
-  delete user.social.blockedUsers;
+  // defensive: social may be undefined in some contexts (e.g., tests)
+  if (user.social && Object.prototype.hasOwnProperty.call(user.social, 'blockedUsers')) {
+    delete user.social.blockedUsers;
+  }
   return user;
 };
 

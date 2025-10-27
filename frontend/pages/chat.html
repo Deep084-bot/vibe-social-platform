@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VIBE — Chat</title>
+  <link rel="stylesheet" href="../styles/landing.css">
+  <style>
+    .chat-wrapper { max-width:900px; margin:100px auto 40px; }
+    .messages { background: #111; padding:1rem; border-radius:12px; min-height:300px; max-height:60vh; overflow:auto }
+    .message { padding:0.5rem; margin-bottom:0.5rem; border-radius:8px }
+    .message.me { background: linear-gradient(90deg,#6366f1,#06b6d4); color:#fff }
+    .message.other { background:#1a1a1a; color:#ddd }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo"><span class="logo-icon">🔥</span> <span class="logo-text">VIBE</span></div>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/feed" class="nav-link">Feed</a>
+        <a href="/profile" class="nav-link">Profile</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="chat-wrapper">
+    <h1>Chat</h1>
+    <div>
+      <label>Chat ID: <input id="chatIdInput" placeholder="room-1" value="room-1"></label>
+      <button id="joinBtn">Join</button>
+    </div>
+    <div id="messages" class="messages">Join a chat to see messages</div>
+    <form id="msgForm" style="display:flex;gap:8px;margin-top:8px">
+      <input id="msgInput" style="flex:1;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06)" placeholder="Write a message...">
+      <button>Send</button>
+    </form>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="../scripts/common.js"></script>
+  <script src="../scripts/chat.js"></script>
+</body>
+</html>

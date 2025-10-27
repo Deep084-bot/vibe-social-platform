@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VIBE — Profile</title>
+  <link rel="stylesheet" href="../styles/landing.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo"><span class="logo-icon">🔥</span> <span class="logo-text">VIBE</span></div>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/feed" class="nav-link">Feed</a>
+        <a href="/chat" class="nav-link">Chat</a>
+      </div>
+    </div>
+  </nav>
+
+  <main style="padding-top:100px; max-width:900px; margin:0 auto;">
+    <h1>Your Profile</h1>
+    <div id="profileContainer">Loading...</div>
+  </main>
+
+  <script src="../scripts/common.js"></script>
+  <script>
+    async function loadProfile() {
+      const token = localStorage.getItem('token');
+      const container = document.getElementById('profileContainer');
+      if (!token) {
+        container.innerHTML = '<p>Please log in to view your profile.</p>';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/users/me', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const data = await res.json();
+        if (data.success && data.user) {
+          const u = data.user;
+          container.innerHTML = `
+            <div style="display:flex;gap:1rem;align-items:center">
+              <img src="${u.profile.avatar}" alt="avatar" style="width:80px;height:80px;border-radius:12px;object-fit:cover">
+              <div>
+                <h2>${u.username} ${u.profile.isVerified ? '✓' : ''}</h2>
+                <div>${u.profile.displayName}</div>
+                <div style="color:#bbb">${u.profile.bio || ''}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          container.innerHTML = '<p>Unable to load profile.</p>';
+        }
+      } catch (e) {
+        container.innerHTML = '<p>Error loading profile.</p>';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadProfile);
+  </script>
+</body>
+</html>
