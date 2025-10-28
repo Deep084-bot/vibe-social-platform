@@ -96,6 +96,7 @@ router.post('/', auth, upload.fields([{ name: 'avatar', maxCount: 1 }, { name: '
           transformation: [{ width: 512, height: 512, crop: 'fill', gravity: 'auto', quality: 'auto' }]
         });
         result.avatar = up.secure_url;
+        result.avatarPublicId = up.public_id;
         try { await fs.unlink(files.avatar[0].path); } catch (e) { /* ignore */ }
       }
       if (files.coverImage && files.coverImage[0]) {
@@ -104,6 +105,7 @@ router.post('/', auth, upload.fields([{ name: 'avatar', maxCount: 1 }, { name: '
           transformation: [{ width: 1200, height: 400, crop: 'fill', gravity: 'auto', quality: 'auto' }]
         });
         result.coverImage = up.secure_url;
+        result.coverImagePublicId = up.public_id;
         try { await fs.unlink(files.coverImage[0].path); } catch (e) { /* ignore */ }
       }
     } else {

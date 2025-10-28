@@ -3,6 +3,25 @@ const path = require('path');
 const fs = require('fs/promises');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const cloudinary = require('cloudinary').v2;
+
+// configure cloudinary if credentials exist
+let cloudinaryConfigured = false;
+try {
+  if (process.env.CLOUDINARY_URL) {
+    cloudinary.config({ cloudinary_url: process.env.CLOUDINARY_URL });
+    cloudinaryConfigured = true;
+  } else if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+    cloudinaryConfigured = true;
+  }
+} catch (e) {
+  cloudinaryConfigured = false;
+}
 
 const router = express.Router();
 
@@ -65,11 +84,24 @@ router.put('/me', async (req, res) => {
           await fs.unlink(path.join(uploadsRoot, oldName)).catch(() => {});
         }
 
+        // If previous avatar was on Cloudinary (we saved public IDs), and new avatar was uploaded to Cloudinary, delete old asset
+        const oldAvatarId = existingUser.profile?.avatarPublicId;
+        const newAvatarId = req.body?.avatarPublicId || user.profile?.avatarPublicId;
+        if (cloudinaryConfigured && oldAvatarId && newAvatarId && oldAvatarId !== newAvatarId) {
+          try { await cloudinary.uploader.destroy(oldAvatarId, { resource_type: 'image' }); } catch (e) { /* ignore */ }
+        }
+
         const oldCover = existingUser.profile?.coverImage;
         const newCover = user.profile?.coverImage;
         if (oldCover && oldCover.startsWith('/uploads/') && newCover && newCover !== oldCover) {
           const oldName = oldCover.replace('/uploads/', '');
           await fs.unlink(path.join(uploadsRoot, oldName)).catch(() => {});
+        }
+
+        const oldCoverId = existingUser.profile?.coverImagePublicId;
+        const newCoverId = req.body?.coverImagePublicId || user.profile?.coverImagePublicId;
+        if (cloudinaryConfigured && oldCoverId && newCoverId && oldCoverId !== newCoverId) {
+          try { await cloudinary.uploader.destroy(oldCoverId, { resource_type: 'image' }); } catch (e) { /* ignore */ }
         }
       }
     } catch (e) {

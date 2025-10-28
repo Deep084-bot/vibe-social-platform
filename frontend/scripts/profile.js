@@ -20,9 +20,44 @@ document.addEventListener('DOMContentLoaded', () => {
       form.elements['avatar'].value = u.profile.avatar || '';
       form.elements['coverImage'].value = u.profile.coverImage || '';
       form.elements['theme'].value = u.profile.theme || 'system';
+      // set previews if available
+      const avatarPreview = document.getElementById('avatarPreview');
+      const coverPreview = document.getElementById('coverPreview');
+      if (u.profile.avatar) {
+        avatarPreview.src = u.profile.avatar;
+        avatarPreview.style.display = 'inline-block';
+      }
+      if (u.profile.coverImage) {
+        coverPreview.src = u.profile.coverImage;
+        coverPreview.style.display = 'inline-block';
+      }
     } catch (e) {
       console.error('Error loading profile for edit', e);
     }
+  }
+
+  // file input previews
+  const avatarFileInput = form.elements['avatarFile'];
+  const coverFileInput = form.elements['coverFile'];
+  const avatarPreviewEl = document.getElementById('avatarPreview');
+  const coverPreviewEl = document.getElementById('coverPreview');
+  if (avatarFileInput) {
+    avatarFileInput.addEventListener('change', (ev) => {
+      const f = ev.target.files && ev.target.files[0];
+      if (f) {
+        avatarPreviewEl.src = URL.createObjectURL(f);
+        avatarPreviewEl.style.display = 'inline-block';
+      }
+    });
+  }
+  if (coverFileInput) {
+    coverFileInput.addEventListener('change', (ev) => {
+      const f = ev.target.files && ev.target.files[0];
+      if (f) {
+        coverPreviewEl.src = URL.createObjectURL(f);
+        coverPreviewEl.style.display = 'inline-block';
+      }
+    });
   }
 
   form.addEventListener('submit', async (ev) => {
@@ -50,11 +85,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const coverFile = form.elements['coverFile']?.files?.[0];
       if (avatarFile) {
         const up = await uploadFile(avatarFile, 'avatar');
-        if (up && up.success && up.files && up.files.avatar) avatarUrl = up.files.avatar;
+        if (up && up.success && up.files && up.files.avatar) {
+          avatarUrl = up.files.avatar;
+          // include public id if Cloudinary used
+          if (up.files.avatarPublicId) payload.avatarPublicId = up.files.avatarPublicId;
+        }
       }
       if (coverFile) {
         const up = await uploadFile(coverFile, 'coverImage');
-        if (up && up.success && up.files && up.files.coverImage) coverUrl = up.files.coverImage;
+        if (up && up.success && up.files && up.files.coverImage) {
+          coverUrl = up.files.coverImage;
+          if (up.files.coverImagePublicId) payload.coverImagePublicId = up.files.coverImagePublicId;
+        }
       }
     } catch (e) {
       console.error('Upload failed', e);
