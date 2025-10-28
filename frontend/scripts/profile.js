@@ -1,0 +1,82 @@
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('profileForm');
+  const msg = document.getElementById('profileMsg');
+  const token = localStorage.getItem('token');
+
+  async function loadIntoForm() {
+    if (!token) return;
+    try {
+      const res = await fetch('/api/users/me', { headers: { 'Authorization': 'Bearer ' + token } });
+      const data = await res.json();
+      if (!data.success) return;
+      const u = data.user;
+      // populate inputs
+      form.elements['displayName'].value = u.profile.displayName || '';
+      form.elements['bio'].value = u.profile.bio || '';
+      form.elements['website'].value = u.profile.website || '';
+      form.elements['pronouns'].value = u.profile.pronouns || '';
+      form.elements['location'].value = u.profile.location || '';
+      form.elements['birthday'].value = u.profile.birthday ? new Date(u.profile.birthday).toISOString().slice(0,10) : '';
+      form.elements['avatar'].value = u.profile.avatar || '';
+      form.elements['coverImage'].value = u.profile.coverImage || '';
+      form.elements['theme'].value = u.profile.theme || 'system';
+    } catch (e) {
+      console.error('Error loading profile for edit', e);
+    }
+  }
+
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    msg.textContent = '';
+    if (!token) { msg.textContent = 'Not authenticated'; return; }
+
+    const payload = {
+      displayName: form.elements['displayName'].value.trim(),
+      bio: form.elements['bio'].value.trim(),
+      website: form.elements['website'].value.trim(),
+      pronouns: form.elements['pronouns'].value.trim(),
+      location: form.elements['location'].value.trim(),
+      birthday: form.elements['birthday'].value || null,
+      avatar: form.elements['avatar'].value.trim() || null,
+      coverImage: form.elements['coverImage'].value.trim() || null,
+      theme: form.elements['theme'].value
+    };
+
+    try {
+      const res = await fetch('/api/users/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        msg.textContent = 'Profile updated';
+        // refresh displayed profile section if present
+        const container = document.getElementById('profileContainer');
+        if (container && data.user) {
+          const u = data.user;
+          container.innerHTML = `
+            <div style="display:flex;gap:1rem;align-items:center">
+              <img src="${u.profile.avatar}" alt="avatar" style="width:80px;height:80px;border-radius:12px;object-fit:cover">
+              <div>
+                <h2>${u.username} ${u.profile.isVerified ? '✓' : ''}</h2>
+                <div>${u.profile.displayName}</div>
+                <div style="color:#bbb">${u.profile.bio || ''}</div>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        msg.textContent = data.message || 'Update failed';
+      }
+    } catch (e) {
+      console.error('Update failed', e);
+      msg.textContent = 'Network error';
+    }
+  });
+
+  loadIntoForm();
+});

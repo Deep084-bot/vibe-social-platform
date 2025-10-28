@@ -26,6 +26,36 @@ router.get('/me', async (req, res) => {
   }
 });
 
+// ✏️ Update current user profile
+router.put('/me', async (req, res) => {
+  try {
+    const allowed = ['displayName', 'bio', 'avatar', 'theme', 'website', 'pronouns', 'location', 'birthday', 'coverImage'];
+    const updates = {};
+
+    if (!req.body) return res.status(400).json({ success: false, message: 'No data provided' });
+
+    allowed.forEach(field => {
+      if (typeof req.body[field] !== 'undefined') {
+        updates[`profile.${field}`] = req.body[field];
+      }
+    });
+
+    // Basic validation for displayName
+    if (updates['profile.displayName'] && updates['profile.displayName'].length > 50) {
+      return res.status(400).json({ success: false, message: 'Display name must be under 50 characters' });
+    }
+
+    const user = await User.findByIdAndUpdate(req.userId, { $set: updates }, { new: true }).select('-password');
+
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ success: false, message: 'Error updating profile' });
+  }
+});
+
 // 🔍 Search users
 router.get('/search', async (req, res) => {
   try {
