@@ -16,6 +16,7 @@ const userRoutes = require('./routes/users');
 const postRoutes = require('./routes/posts');
 const chatRoutes = require('./routes/chat');
 const storyRoutes = require('./routes/stories');
+const uploadRoutes = require('./routes/uploads');
 
 const app = express();
 const server = http.createServer(app);
@@ -119,6 +120,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/stories', storyRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 // 📱 Serve Frontend Pages
 app.get('/', (req, res) => {

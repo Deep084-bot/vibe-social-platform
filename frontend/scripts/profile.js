@@ -29,6 +29,38 @@ document.addEventListener('DOMContentLoaded', () => {
     ev.preventDefault();
     msg.textContent = '';
     if (!token) { msg.textContent = 'Not authenticated'; return; }
+    // If files selected, upload them first
+    async function uploadFile(file, fieldName) {
+      const fd = new FormData();
+      // backend expects fields named 'avatar' and 'coverImage'
+      fd.append(fieldName, file);
+      const r = await fetch('/api/uploads', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token },
+        body: fd
+      });
+      return r.json();
+    }
+
+    let avatarUrl = form.elements['avatar'].value.trim() || null;
+    let coverUrl = form.elements['coverImage'].value.trim() || null;
+
+    try {
+      const avatarFile = form.elements['avatarFile']?.files?.[0];
+      const coverFile = form.elements['coverFile']?.files?.[0];
+      if (avatarFile) {
+        const up = await uploadFile(avatarFile, 'avatar');
+        if (up && up.success && up.files && up.files.avatar) avatarUrl = up.files.avatar;
+      }
+      if (coverFile) {
+        const up = await uploadFile(coverFile, 'coverImage');
+        if (up && up.success && up.files && up.files.coverImage) coverUrl = up.files.coverImage;
+      }
+    } catch (e) {
+      console.error('Upload failed', e);
+      msg.textContent = 'Image upload failed';
+      return;
+    }
 
     const payload = {
       displayName: form.elements['displayName'].value.trim(),
@@ -37,8 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
       pronouns: form.elements['pronouns'].value.trim(),
       location: form.elements['location'].value.trim(),
       birthday: form.elements['birthday'].value || null,
-      avatar: form.elements['avatar'].value.trim() || null,
-      coverImage: form.elements['coverImage'].value.trim() || null,
+      avatar: avatarUrl,
+      coverImage: coverUrl,
       theme: form.elements['theme'].value
     };
 
