@@ -1,15 +1,17 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs/promises');
+const fsSync = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const sharp = require('sharp');
 const auth = require('../middleware/auth');
 
 const router = express.Router();
 
 // ensure uploads folder exists
 const UPLOADS_ROOT = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(UPLOADS_ROOT)) fs.mkdirSync(UPLOADS_ROOT, { recursive: true });
+if (!fsSync.existsSync(UPLOADS_ROOT)) fsSync.mkdirSync(UPLOADS_ROOT, { recursive: true });
 
 // configure multer to store files with unique names
 const storage = multer.diskStorage({
@@ -17,7 +19,7 @@ const storage = multer.diskStorage({
     cb(null, UPLOADS_ROOT);
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname) || '';
+    const ext = path.extname(file.originalname) || '.jpg';
     const name = `${Date.now()}-${uuidv4()}${ext}`;
     cb(null, name);
   }
@@ -25,7 +27,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB per file
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB per file
   fileFilter: (req, file, cb) => {
     // accept only images
     if (!file.mimetype.startsWith('image/')) {
@@ -35,16 +37,45 @@ const upload = multer({
   }
 });
 
+async function processAvatar(srcPath) {
+  const outName = `${Date.now()}-${uuidv4()}-avatar.jpg`;
+  const outPath = path.join(UPLOADS_ROOT, outName);
+  // resize to 512x512, crop center, convert to optimized jpeg
+  await sharp(srcPath)
+    .resize(512, 512, { fit: 'cover', position: 'centre' })
+    .jpeg({ quality: 82 })
+    .toFile(outPath);
+  // remove original
+  try { await fs.unlink(srcPath); } catch (e) { /* ignore */ }
+  return outName;
+}
+
+async function processCover(srcPath) {
+  const outName = `${Date.now()}-${uuidv4()}-cover.jpg`;
+  const outPath = path.join(UPLOADS_ROOT, outName);
+  // resize cover to 1200x400 (landscape), crop center
+  await sharp(srcPath)
+    .resize(1200, 400, { fit: 'cover', position: 'centre' })
+    .jpeg({ quality: 80 })
+    .toFile(outPath);
+  try { await fs.unlink(srcPath); } catch (e) { /* ignore */ }
+  return outName;
+}
+
 // POST /api/uploads - accept avatar and/or coverImage fields (multipart)
-router.post('/', auth, upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'coverImage', maxCount: 1 }]), (req, res) => {
+router.post('/', auth, upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'coverImage', maxCount: 1 }]), async (req, res) => {
   try {
     const files = req.files || {};
     const result = {};
+
     if (files.avatar && files.avatar[0]) {
-      result.avatar = `/uploads/${files.avatar[0].filename}`;
+      const saved = await processAvatar(files.avatar[0].path);
+      result.avatar = `/uploads/${saved}`;
     }
+
     if (files.coverImage && files.coverImage[0]) {
-      result.coverImage = `/uploads/${files.coverImage[0].filename}`;
+      const saved = await processCover(files.coverImage[0].path);
+      result.coverImage = `/uploads/${saved}`;
     }
 
     if (Object.keys(result).length === 0) {
