@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "dev": "nodemon backend/server.js",
-    "client": "live-server frontend",
+    "client": "http-server frontend -o",
     "build": "npm run client & npm run dev",
     "test": "jest",
     "lint": "eslint backend/**/*.js"
@@ -42,8 +42,8 @@
   },
   "devDependencies": {
     "eslint": "^8.56.0",
+    "http-server": "^14.1.1",
     "jest": "^29.7.0",
-    "live-server": "^1.2.0",
     "mongodb-memory-server": "^10.2.3",
     "nodemon": "^3.0.2",
     "supertest": "^7.1.4"

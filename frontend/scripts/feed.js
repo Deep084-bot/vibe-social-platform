@@ -33,6 +33,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
           </div>
           <p style="margin-top:8px">${p.content?.text || ''}</p>
+          <div style="margin-top:8px;display:flex;gap:12px;align-items:center">
+            <button data-postid="${p._id}" class="like-btn">👍 <span class="like-count">${p.stats?.likesCount||0}</span></button>
+            <button data-postid="${p._id}" class="comment-toggle-btn">💬 Comments (${p.stats?.commentsCount||0})</button>
+          </div>
         `;
         // if media present, render first media item
         if (p.content?.media && p.content.media.length) {
@@ -46,6 +50,101 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
         }
         container.appendChild(el);
+        // attach like handler
+        const likeBtn = el.querySelector('.like-btn');
+        const commentToggle = el.querySelector('.comment-toggle-btn');
+        if (likeBtn) {
+          likeBtn.addEventListener('click', async (ev) => {
+            const postId = likeBtn.getAttribute('data-postid');
+            const token = localStorage.getItem('token');
+            if (!token) { alert('Please log in to like posts'); return; }
+
+            // optimistic UI
+            const countEl = likeBtn.querySelector('.like-count');
+            const prev = parseInt(countEl.textContent || '0');
+            countEl.textContent = prev + 1;
+
+            try {
+              const res = await fetch(`/api/posts/${postId}/like`, { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } });
+              const data = await res.json();
+              if (!res.ok) {
+                countEl.textContent = prev; // revert
+                alert(data.message || 'Failed to like');
+                return;
+              }
+              countEl.textContent = data.likesCount;
+            } catch (err) {
+              console.error(err);
+              countEl.textContent = prev;
+            }
+          });
+        }
+
+        if (commentToggle) {
+          commentToggle.addEventListener('click', async () => {
+            const postId = commentToggle.getAttribute('data-postid');
+            // find or create comment container
+            let commentContainer = el.querySelector('.comments-container');
+            if (commentContainer) { commentContainer.remove(); return; }
+            commentContainer = document.createElement('div');
+            commentContainer.className = 'comments-container';
+            commentContainer.style.marginTop = '8px';
+            commentContainer.innerHTML = '<div>Loading comments...</div>';
+            el.appendChild(commentContainer);
+
+            try {
+              const res = await fetch(`/api/posts/${postId}/comments`);
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.message || 'Failed to load comments');
+              const list = data.comments || [];
+              commentContainer.innerHTML = '';
+              const listEl = document.createElement('div');
+              list.forEach(c => {
+                const cEl = document.createElement('div');
+                cEl.style.borderTop = '1px solid #eee';
+                cEl.style.paddingTop = '6px';
+                cEl.innerHTML = `<strong>${c.author.username}</strong> <div style="color:#888;font-size:12px">${new Date(c.createdAt).toLocaleString()}</div><div>${c.content.text}</div>`;
+                listEl.appendChild(cEl);
+              });
+              commentContainer.appendChild(listEl);
+
+              // add form
+              const form = document.createElement('form');
+              form.style.marginTop = '8px';
+              form.innerHTML = `<input name="text" placeholder="Write a comment..." style="width:72%"> <button type="submit">Reply</button>`;
+              commentContainer.appendChild(form);
+              form.addEventListener('submit', async (ev) => {
+                ev.preventDefault();
+                const text = form.elements['text'].value.trim();
+                const token = localStorage.getItem('token');
+                if (!token) { alert('Please log in to comment'); return; }
+                if (!text) return;
+                const res = await fetch(`/api/posts/${postId}/comments`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify({ text }) });
+                const payload = await res.json();
+                if (!res.ok) { alert(payload.message || 'Failed to post comment'); return; }
+                // append new comment
+                const newC = payload.comment;
+                const newEl = document.createElement('div');
+                newEl.style.borderTop = '1px solid #eee';
+                newEl.style.paddingTop = '6px';
+                newEl.innerHTML = `<strong>${newC.author.username}</strong> <div style="color:#888;font-size:12px">${new Date(newC.createdAt).toLocaleString()}</div><div>${newC.content.text}</div>`;
+                listEl.appendChild(newEl);
+                // update comments count in button
+                const currentText = commentToggle.textContent || '';
+                const m = currentText.match(/Comments \((\d+)\)/);
+                if (m) {
+                  const num = parseInt(m[1]) + 1;
+                  commentToggle.textContent = `💬 Comments (${num})`;
+                }
+                form.reset();
+              });
+
+            } catch (err) {
+              console.error(err);
+              commentContainer.innerHTML = '<div>Error loading comments.</div>';
+            }
+          });
+        }
       });
 
       // if we've received fewer than limit, hide load more
