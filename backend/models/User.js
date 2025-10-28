@@ -38,18 +38,11 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
     },
-    avatarPublicId: {
-      type: String,
-      default: ''
-    },
     coverImage: {
       type: String,
       default: ''
     },
-    coverImagePublicId: {
-      type: String,
-      default: ''
-    },
+    // Note: cloud/public storage integration removed; avatar/cover stored as URLs under `avatar` and `coverImage`.
     pronouns: {
       type: String,
       enum: ['he/him', 'she/her', 'they/them', 'custom', ''],

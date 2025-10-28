@@ -246,6 +246,7 @@ server.listen(PORT, () => {
   🔗 API: http://localhost:${PORT}/api
   💬 Real-time: Socket.IO enabled
   🌍 Environment: ${process.env.NODE_ENV || 'development'}
+  📁 Uploads: stored locally under /uploads
   `);
 });
 

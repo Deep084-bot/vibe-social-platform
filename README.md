@@ -179,6 +179,30 @@ ENABLE_SEARCH=true
 ENABLE_TRENDING=true
 ```
 
+### Running locally (no third-party services)
+
+This project is designed to run fully on your local machine without requiring any paid or external API keys. In particular:
+
+- Image CDN / remote hosting removed: uploaded images are processed with `sharp` and stored under the local `uploads/` folder. No external network calls will be made for image uploads by default.
+- MongoDB can be run locally (default) or you can use MongoDB Atlas. Set `MONGODB_URI` to point to your database.
+
+To run the app entirely locally:
+
+```bash
+# ensure MongoDB is running locally
+mongod
+
+# install deps
+npm install
+
+# start the dev server
+npm run dev
+
+# open http://localhost:3000
+```
+
+If you later decide to add a remote CDN or image hosting service, you can implement it by adding the provider's SDK and wiring the upload route. This project is intentionally kept local-first to avoid relying on paid or third-party services out of the box.
+
 ## 🤝 Contributing
 
 We love contributions! Here's how you can help make VIBE even more fire:

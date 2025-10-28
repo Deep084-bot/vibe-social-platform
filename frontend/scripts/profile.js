@@ -103,10 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       return r.json();
     }
-    let avatarUrl = form.elements['avatar'].value.trim() || null;
-    let coverUrl = form.elements['coverImage'].value.trim() || null;
-    let avatarPublicId = null;
-    let coverImagePublicId = null;
+  let avatarUrl = form.elements['avatar'].value.trim() || null;
+  let coverUrl = form.elements['coverImage'].value.trim() || null;
 
     try {
       // disable save and show spinner
@@ -119,8 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const up = await uploadFile(avatarFile, 'avatar');
         if (up && up.success && up.files && up.files.avatar) {
           avatarUrl = up.files.avatar;
-          // include public id if Cloudinary used
-          if (up.files.avatarPublicId) avatarPublicId = up.files.avatarPublicId;
         } else {
           if (avatarErrorEl) { avatarErrorEl.textContent = up.message || 'Upload failed'; avatarErrorEl.style.display = 'block'; }
           throw new Error('avatar upload failed');
@@ -130,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const up = await uploadFile(coverFile, 'coverImage');
         if (up && up.success && up.files && up.files.coverImage) {
           coverUrl = up.files.coverImage;
-          if (up.files.coverImagePublicId) coverImagePublicId = up.files.coverImagePublicId;
         } else {
           if (coverErrorEl) { coverErrorEl.textContent = up.message || 'Upload failed'; coverErrorEl.style.display = 'block'; }
           throw new Error('cover upload failed');
@@ -156,8 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
       theme: form.elements['theme'].value
     };
 
-    if (avatarPublicId) payload.avatarPublicId = avatarPublicId;
-    if (coverImagePublicId) payload.coverImagePublicId = coverImagePublicId;
+  // no remote provider public ids are included — uploads are local
 
     try {
       const res = await fetch('/api/users/me', {

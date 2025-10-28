@@ -21,7 +21,17 @@
 
   <main style="padding-top:100px; max-width:900px; margin:0 auto;">
     <h1 style="margin-bottom:1rem;">Your Feed</h1>
+    <div id="postComposer" style="margin-bottom:1rem">
+      <form id="createPostForm">
+        <textarea id="postText" name="text" placeholder="What's vibing?" rows="3" style="width:100%;padding:8px"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <input type="file" id="postImage" accept="image/*">
+          <button id="createPostBtn" type="submit">Post</button>
+        </div>
+      </form>
+    </div>
     <div id="feedContainer">Loading...</div>
+    <div style="text-align:center;margin-top:1rem"><button id="loadMoreBtn">Load more</button></div>
   </main>
 
   <script src="../scripts/feed.js"></script>
