@@ -27,15 +27,18 @@
         <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;align-items:center">
           <label>Display name</label>
           <input name="displayName" type="text" maxlength="50" />
+          <div class="field-error" id="displayNameError" style="color:#c00;font-size:12px;display:none"></div>
 
           <label>Bio</label>
           <textarea name="bio" rows="3"></textarea>
 
           <label>Website</label>
           <input name="website" type="url" />
+          <div class="field-error" id="websiteError" style="color:#c00;font-size:12px;display:none"></div>
 
           <label>Pronouns</label>
           <input name="pronouns" type="text" />
+
 
           <label>Location</label>
           <input name="location" type="text" />
@@ -45,6 +48,7 @@
 
           <label>Avatar URL</label>
           <input name="avatar" type="url" />
+          <div class="field-error" id="avatarError" style="color:#c00;font-size:12px;display:none"></div>
           <label>Avatar file</label>
           <input name="avatarFile" type="file" accept="image/*" />
           <div style="margin-top:8px">
@@ -53,6 +57,7 @@
 
           <label>Cover Image URL</label>
           <input name="coverImage" type="url" />
+          <div class="field-error" id="coverError" style="color:#c00;font-size:12px;display:none"></div>
           <label>Cover image file</label>
           <input name="coverFile" type="file" accept="image/*" />
           <div style="margin-top:8px">
@@ -69,7 +74,9 @@
 
         <div style="margin-top:12px; display:flex; gap:8px; align-items:center">
           <button id="saveProfile" type="submit">Save</button>
+          <div id="spinner" style="display:none;margin-left:8px">Saving…</div>
           <div id="profileMsg" aria-live="polite"></div>
+          <div id="profileToast" role="status" style="display:none;margin-left:12px;padding:6px 10px;border-radius:6px;background:#0f172a;color:#fff">Saved</div>
         </div>
       </form>
     </section>

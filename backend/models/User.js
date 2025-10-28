@@ -38,7 +38,15 @@ const userSchema = new mongoose.Schema({
       type: String,
       default: 'https://api.dicebear.com/7.x/avataaars/svg?seed=default'
     },
+    avatarPublicId: {
+      type: String,
+      default: ''
+    },
     coverImage: {
+      type: String,
+      default: ''
+    },
+    coverImagePublicId: {
       type: String,
       default: ''
     },

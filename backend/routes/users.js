@@ -50,7 +50,7 @@ router.get('/me', async (req, res) => {
 // ✏️ Update current user profile
 router.put('/me', async (req, res) => {
   try {
-    const allowed = ['displayName', 'bio', 'avatar', 'theme', 'website', 'pronouns', 'location', 'birthday', 'coverImage'];
+  const allowed = ['displayName', 'bio', 'avatar', 'avatarPublicId', 'coverImage', 'coverImagePublicId', 'theme', 'website', 'pronouns', 'location', 'birthday'];
     const updates = {};
 
     if (!req.body) return res.status(400).json({ success: false, message: 'No data provided' });

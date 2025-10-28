@@ -41,6 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const coverFileInput = form.elements['coverFile'];
   const avatarPreviewEl = document.getElementById('avatarPreview');
   const coverPreviewEl = document.getElementById('coverPreview');
+  const saveBtn = document.getElementById('saveProfile');
+  const spinner = document.getElementById('spinner');
+  const toast = document.getElementById('profileToast');
+  const displayNameErrorEl = document.getElementById('displayNameError');
+  const websiteErrorEl = document.getElementById('websiteError');
+  const avatarErrorEl = document.getElementById('avatarError');
+  const coverErrorEl = document.getElementById('coverError');
   if (avatarFileInput) {
     avatarFileInput.addEventListener('change', (ev) => {
       const f = ev.target.files && ev.target.files[0];
@@ -64,6 +71,26 @@ document.addEventListener('DOMContentLoaded', () => {
     ev.preventDefault();
     msg.textContent = '';
     if (!token) { msg.textContent = 'Not authenticated'; return; }
+    // Clear previous inline errors
+    [displayNameErrorEl, websiteErrorEl, avatarErrorEl, coverErrorEl].forEach(el => { if (el) { el.style.display = 'none'; el.textContent = ''; } });
+
+    // Client-side validation
+    const displayNameVal = form.elements['displayName'].value.trim();
+    if (!displayNameVal) {
+      if (displayNameErrorEl) { displayNameErrorEl.textContent = 'Display name is required'; displayNameErrorEl.style.display = 'block'; }
+      return;
+    }
+    if (displayNameVal.length > 50) {
+      if (displayNameErrorEl) { displayNameErrorEl.textContent = 'Display name must be 50 characters or less'; displayNameErrorEl.style.display = 'block'; }
+      return;
+    }
+
+    const websiteVal = form.elements['website'].value.trim();
+    if (websiteVal && !/^https?:\/\/.+/.test(websiteVal)) {
+      if (websiteErrorEl) { websiteErrorEl.textContent = 'Website must be a valid URL (include http:// or https://)'; websiteErrorEl.style.display = 'block'; }
+      return;
+    }
+
     // If files selected, upload them first
     async function uploadFile(file, fieldName) {
       const fd = new FormData();
@@ -76,11 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       return r.json();
     }
-
     let avatarUrl = form.elements['avatar'].value.trim() || null;
     let coverUrl = form.elements['coverImage'].value.trim() || null;
+    let avatarPublicId = null;
+    let coverImagePublicId = null;
 
     try {
+      // disable save and show spinner
+      if (saveBtn) saveBtn.disabled = true;
+      if (spinner) spinner.style.display = 'inline-block';
+
       const avatarFile = form.elements['avatarFile']?.files?.[0];
       const coverFile = form.elements['coverFile']?.files?.[0];
       if (avatarFile) {
@@ -88,19 +120,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (up && up.success && up.files && up.files.avatar) {
           avatarUrl = up.files.avatar;
           // include public id if Cloudinary used
-          if (up.files.avatarPublicId) payload.avatarPublicId = up.files.avatarPublicId;
+          if (up.files.avatarPublicId) avatarPublicId = up.files.avatarPublicId;
+        } else {
+          if (avatarErrorEl) { avatarErrorEl.textContent = up.message || 'Upload failed'; avatarErrorEl.style.display = 'block'; }
+          throw new Error('avatar upload failed');
         }
       }
       if (coverFile) {
         const up = await uploadFile(coverFile, 'coverImage');
         if (up && up.success && up.files && up.files.coverImage) {
           coverUrl = up.files.coverImage;
-          if (up.files.coverImagePublicId) payload.coverImagePublicId = up.files.coverImagePublicId;
+          if (up.files.coverImagePublicId) coverImagePublicId = up.files.coverImagePublicId;
+        } else {
+          if (coverErrorEl) { coverErrorEl.textContent = up.message || 'Upload failed'; coverErrorEl.style.display = 'block'; }
+          throw new Error('cover upload failed');
         }
       }
     } catch (e) {
       console.error('Upload failed', e);
       msg.textContent = 'Image upload failed';
+      if (saveBtn) saveBtn.disabled = false;
+      if (spinner) spinner.style.display = 'none';
       return;
     }
 
@@ -115,6 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
       coverImage: coverUrl,
       theme: form.elements['theme'].value
     };
+
+    if (avatarPublicId) payload.avatarPublicId = avatarPublicId;
+    if (coverImagePublicId) payload.coverImagePublicId = coverImagePublicId;
 
     try {
       const res = await fetch('/api/users/me', {
