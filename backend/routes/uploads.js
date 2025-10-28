@@ -6,6 +6,7 @@ const fsSync = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const sharp = require('sharp');
 const auth = require('../middleware/auth');
+const cloudinary = require('cloudinary').v2;
 
 const router = express.Router();
 
@@ -36,6 +37,25 @@ const upload = multer({
     cb(null, true);
   }
 });
+
+// Cloudinary optional config (use CLOUDINARY_URL or CLOUDINARY_CLOUD_NAME + API keys)
+let useCloudinary = false;
+try {
+  if (process.env.CLOUDINARY_URL) {
+    cloudinary.config({ cloudinary_url: process.env.CLOUDINARY_URL });
+    useCloudinary = true;
+  } else if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+    useCloudinary = true;
+  }
+} catch (e) {
+  console.warn('Cloudinary config failed, falling back to local storage');
+  useCloudinary = false;
+}
 
 async function processAvatar(srcPath) {
   const outName = `${Date.now()}-${uuidv4()}-avatar.jpg`;
@@ -68,14 +88,34 @@ router.post('/', auth, upload.fields([{ name: 'avatar', maxCount: 1 }, { name: '
     const files = req.files || {};
     const result = {};
 
-    if (files.avatar && files.avatar[0]) {
-      const saved = await processAvatar(files.avatar[0].path);
-      result.avatar = `/uploads/${saved}`;
-    }
+    // If Cloudinary configured, upload to Cloudinary and remove local file
+    if (useCloudinary) {
+      if (files.avatar && files.avatar[0]) {
+        const up = await cloudinary.uploader.upload(files.avatar[0].path, {
+          folder: 'vibe/avatars',
+          transformation: [{ width: 512, height: 512, crop: 'fill', gravity: 'auto', quality: 'auto' }]
+        });
+        result.avatar = up.secure_url;
+        try { await fs.unlink(files.avatar[0].path); } catch (e) { /* ignore */ }
+      }
+      if (files.coverImage && files.coverImage[0]) {
+        const up = await cloudinary.uploader.upload(files.coverImage[0].path, {
+          folder: 'vibe/covers',
+          transformation: [{ width: 1200, height: 400, crop: 'fill', gravity: 'auto', quality: 'auto' }]
+        });
+        result.coverImage = up.secure_url;
+        try { await fs.unlink(files.coverImage[0].path); } catch (e) { /* ignore */ }
+      }
+    } else {
+      if (files.avatar && files.avatar[0]) {
+        const saved = await processAvatar(files.avatar[0].path);
+        result.avatar = `/uploads/${saved}`;
+      }
 
-    if (files.coverImage && files.coverImage[0]) {
-      const saved = await processCover(files.coverImage[0].path);
-      result.coverImage = `/uploads/${saved}`;
+      if (files.coverImage && files.coverImage[0]) {
+        const saved = await processCover(files.coverImage[0].path);
+        result.coverImage = `/uploads/${saved}`;
+      }
     }
 
     if (Object.keys(result).length === 0) {

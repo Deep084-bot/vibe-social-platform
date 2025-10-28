@@ -1,4 +1,6 @@
 const express = require('express');
+const path = require('path');
+const fs = require('fs/promises');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
@@ -34,6 +36,9 @@ router.put('/me', async (req, res) => {
 
     if (!req.body) return res.status(400).json({ success: false, message: 'No data provided' });
 
+    // fetch existing user to allow cleaning up old uploads if replaced
+    const existingUser = await User.findById(req.userId).select('profile.avatar profile.coverImage');
+
     allowed.forEach(field => {
       if (typeof req.body[field] !== 'undefined') {
         updates[`profile.${field}`] = req.body[field];
@@ -48,6 +53,28 @@ router.put('/me', async (req, res) => {
     const user = await User.findByIdAndUpdate(req.userId, { $set: updates }, { new: true }).select('-password');
 
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    // If user replaced avatar/cover that was stored locally under /uploads, remove old files
+    try {
+      const uploadsRoot = path.join(__dirname, '../../uploads');
+      if (existingUser) {
+        const oldAvatar = existingUser.profile?.avatar;
+        const newAvatar = user.profile?.avatar;
+        if (oldAvatar && oldAvatar.startsWith('/uploads/') && newAvatar && newAvatar !== oldAvatar) {
+          const oldName = oldAvatar.replace('/uploads/', '');
+          await fs.unlink(path.join(uploadsRoot, oldName)).catch(() => {});
+        }
+
+        const oldCover = existingUser.profile?.coverImage;
+        const newCover = user.profile?.coverImage;
+        if (oldCover && oldCover.startsWith('/uploads/') && newCover && newCover !== oldCover) {
+          const oldName = oldCover.replace('/uploads/', '');
+          await fs.unlink(path.join(uploadsRoot, oldName)).catch(() => {});
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to cleanup old upload files', e);
+    }
 
     res.json({ success: true, user });
   } catch (error) {
